@@ -80,7 +80,22 @@ class Agent(nn.Module):
 
 
 
-class RolloutCreator():
+class RolloutCreator:
+    """
+    Class for creating rollouts for text summarization using PPO.
+
+    Args:
+        article_dataset: Dataset containing articles for summarization.
+        args: Arguments for configuring the rollout creator.
+        tokenizer: Tokenizer object for tokenizing the data.
+
+    Attributes:
+        article_batch_size (int): Batch size for generating rollouts from articles.
+        article_dataset: Dataset containing articles for summarization.
+        article_generator: Generator object for generating article batches.
+        article_iterator: Iterator for iterating over article batches.
+        generate_kwargs (dict): Keyword arguments for generating summaries.
+    """
 
     def __init__(
             self,
@@ -88,6 +103,14 @@ class RolloutCreator():
             args,
             tokenizer
     ):
+        """
+        Initializes the RolloutCreator.
+
+        Args:
+            article_dataset: Dataset containing articles for summarization.
+            args: Arguments for configuring the rollout creator.
+            tokenizer: Tokenizer object for tokenizing the data.
+        """
         self.article_batch_size = args.article_batch_size
         self.article_dataset = article_dataset
         self.article_generator = TextSummarizationDataGenerator(self.article_dataset, self.article_batch_size)
@@ -99,13 +122,36 @@ class RolloutCreator():
         )
     
     def logprobs_from_logits(self ,logits, labels):
+        """
+        Computes the log probabilities from logits.
+
+        Args:
+            logits: Logits produced by the model.
+            labels: Target labels.
+
+        Returns:
+            torch.Tensor: Log probabilities.
+        """
         logprobs = F.log_softmax(logits, dim=-1)
         logprobs_labels = torch.gather(logprobs, dim=-1, index=labels.unsqueeze(-1))
         return logprobs_labels.squeeze(-1)
 
 
     def make_experience(self, model, tokenizer, ref_model, reward_fn, args,num_rollouts=128):
+        """
+        Generates rollouts for text summarization using PPO.
 
+        Args:
+            model: The PPO model used for generating summaries.
+            tokenizer: Tokenizer object for tokenizing the data.
+            ref_model: Reference model for computing reference logits.
+            reward_fn: Reward function for evaluating summaries.
+            args: Arguments for configuring the rollout creator.
+            num_rollouts (int, optional): Number of rollouts to generate. Defaults to 128.
+
+        Returns:
+            Tuple[list, float]: Tuple containing the list of rollouts and the average score.
+        """
         all_rollouts = []
         while len(all_rollouts) < num_rollouts:
 
