@@ -1,1 +1,1 @@
-# GAIL-for-Text-Summarization
+# RLGAF-for-Text-Summarization
