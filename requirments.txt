@@ -1,0 +1,8 @@
+transformers
+datasets
+accelerate
+scipy
+omegaconf
+torchtyping
+matplotlib
+ipywidgets
