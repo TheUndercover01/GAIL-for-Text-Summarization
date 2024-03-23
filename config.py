@@ -2,7 +2,7 @@ from omegaconf import DictConfig
 
 class Config():
         
-    def geneartor_params(self):
+    def generator_params(self):
         """
         Returns configuration parameters for the generator model.
 
@@ -10,31 +10,33 @@ class Config():
             DictConfig: Configuration parameters for the generator.
         """
         self.genargs = {
-            'generator_model_name_or_path': 'EKKam/opt-1.5b_imdb_sft',
-            'reward_model_name_or_path': 'EKKam/opt350m_imdb_sentiment_reward',
-            'seq_length': 1024,
-            'batch_size': 64,
-            'lr': 0.00006,
-            'prompt_size': 30,
-            'prompt_batch_size': 128,
-            'num_rollouts': 128,
-            'epochs': 100,
-            'ppo_epochs': 4,
+            'generator_model_name_or_path': 'distilgpt2',
+            # Assuming the reward model is part of the generator configuration
+            'reward_model_name_or_path': 'distilbert-base-uncased',
+            'seq_length': 512,  # Adjusted for smaller model capacity
+            'batch_size': 16,  # Adjusted for GPU memory constraints
+            'lr': 0.00006,  # Learning rate may need fine-tuning
+            'prompt_size': 30,  # Keep as is or adjust based on task requirements
+            'prompt_batch_size': 64,  # Adjusted for GPU memory constraints
+            'num_rollouts': 64,  # Adjusted for computational efficiency
+            'epochs': 100,  # Keep as per your experimentation needs
+            'ppo_epochs': 4,  # Keep as per your experimentation needs
             'gen_kwargs': {
-                'max_new_tokens': 40,
-                'top_k': 0,
-                'top_p': 1.0,
-                'do_sample': True
+                'max_new_tokens': 40,  # Keep as is or adjust based on task requirements
+                'top_k': 0,  # Sampling strategy parameter, keep as is
+                'top_p': 1.0,  # Sampling strategy parameter, keep as is
+                'do_sample': True  # Enable sampling in generation
             },
-            'kl_coef': 0.01,
-            'gamma': 1,
-            'lam': 0.95,
-            'cliprange': 0.2,
-            'cliprange_value': 0.2,
-            'vf_coef': 1,
+            'kl_coef': 0.01,  # Keep as is for KL-coefficient in loss calculation
+            'gamma': 1,  # Discount factor for GAE
+            'lam': 0.95,  # Lambda for GAE
+            'cliprange': 0.2,  # PPO clipping range
+            'cliprange_value': 0.2,  # Value clipping range
+            'vf_coef': 1,  # Coefficient for value loss in PPO
         }
 
-        genargs = DictConfig(genargs)
+        # Return as a DictConfig object for OmegaConf compatibility
+        genargs = DictConfig(self.genargs)
         return genargs
     
     def discriminator_params(self):
@@ -46,19 +48,16 @@ class Config():
         """
         self.disargs = {
             "seed": 42,
-            'model_name_or_path': 'facebook/opt-350m',
-            'learning_rate': 5e-5,
-            'batch_size': 2,
-            'gradient_accumulation_steps': 16,
-            'num_train_epochs': 1,
-            'num_workers': 10,
-            'seq_length': 1024,
-            'logging_steps': 10,
+            'model_name_or_path': 'distilbert-base-uncased',  # Updated to DistilBERT
+            'learning_rate': 2e-5,  # Adjusted based on model and task
+            'batch_size': 8,  # Adjusted for GPU memory constraints
+            'gradient_accumulation_steps': 8,  # Adjusted for training stability
+            'num_train_epochs': 3,  # Adjusted for sufficient training without overfitting
+            'num_workers': 4,  # Adjust based on available CPU resources
+            'seq_length': 512,  # Adjusted for smaller model capacity
+            'logging_steps': 10,  # Log interval, keep as is or adjust based on preference
         }
 
-        disargs = DictConfig(disargs)
+        # Return as a DictConfig object for OmegaConf compatibility
+        disargs = DictConfig(self.disargs)
         return disargs
-
-
-
-    
